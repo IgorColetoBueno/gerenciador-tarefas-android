@@ -10,6 +10,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"></ListView>
     <android.support.design.widget.FloatingActionButton
+        android:id="@+id/listar_tarefas_btn_add"
         android:layout_margin="16dp"
         android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"

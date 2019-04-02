@@ -2,6 +2,7 @@ package ads.vilhena.ifro.edu.br.Tarefas;
 
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
+import android.content.Intent;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.TextInputLayout;
 import android.support.v7.app.AppCompatActivity;
@@ -15,13 +16,15 @@ import android.widget.TimePicker;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
+import ads.vilhena.ifro.edu.br.Tarefas.DAO.AppDatabase;
+import ads.vilhena.ifro.edu.br.Tarefas.model.Tarefa;
+
 public class CadastroTarefaActivity extends AppCompatActivity {
     private Calendar dataHora = Calendar.getInstance();
     private TextInputLayout txtDescricao;
     private TextView txtData;
     private TextView txtHora;
     private Button btnSalvar;
-    private FloatingActionButton fabCadastrarTarefa;
 
 
     @Override
@@ -29,8 +32,32 @@ public class CadastroTarefaActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_cadastro_tarefa);
 
+        this.inicializarComponentes();
         this.definirCampoData();
         this.definirCampoHora();
+    }
+
+    private void inicializarComponentes() {
+        this.txtDescricao = findViewById(R.id.cadastrar_tarefas_txt_descricao);
+        this.txtData = findViewById(R.id.cadastrar_tarefas_txt_data);
+        this.txtHora = findViewById(R.id.cadastrar_tarefas_txt_hora);
+        this.btnSalvar = findViewById(R.id.cadastrar_tarefas_btn_salvar);
+
+        btnSalvar.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (validarDescricao()) {
+                    Tarefa tarefa = new Tarefa();
+                    tarefa.setDescricao(txtDescricao.getEditText().getText().toString().trim());
+                    tarefa.setDataHora(dataHora.getTimeInMillis());
+                    AppDatabase.getAppDatabase(CadastroTarefaActivity.this).tarefaDAO().inserir(tarefa);
+                    Intent intent = new Intent();
+                    intent.putExtra("resposta", "OK");
+                    setResult(RESULT_OK, intent);
+                    finish();
+                }
+            }
+        });
     }
 
     private void definirCampoHora() {
@@ -69,5 +96,14 @@ public class CadastroTarefaActivity extends AppCompatActivity {
                 new DatePickerDialog(CadastroTarefaActivity.this, d, dataHora.get(Calendar.YEAR), dataHora.get(Calendar.MONTH), dataHora.get(Calendar.DAY_OF_MONTH)).show();
             }
         });
+    }
+
+    public boolean validarDescricao(){
+        if (txtDescricao.getEditText().getText().toString().trim().equals("")){
+            txtDescricao.setError("A descrição da tarefa não pode estar em branco!");
+            return false;
+        }
+        txtDescricao.setError(null);
+        return true;
     }
 }
